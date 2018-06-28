@@ -79,6 +79,68 @@ class ThemekitWebTest extends \DrupalWebTestCase {
     $this->assertIdentical($html_expected, $html = drupal_render($element));
   }
 
+  public function testLinkWrapper() {
+
+    $element = [
+      /* @see theme_themekit_link_wrapper() */
+      '#type' => 'themekit_link_wrapper',
+      '#path' => 'admin',
+      'content_0' => [
+        '#markup' => 'Adminis',
+      ],
+      'content_1' => [
+        '#markup' => 'tration',
+      ],
+    ];
+
+    $html_expected = '<a href="/admin">Administration</a>';
+
+    $this->assertIdentical($html_expected, $html = drupal_render($element));
+  }
+
+  public function testItemList() {
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
+      '#tag_name' => 'ol',
+      'item_0' => [
+        '#markup' => 'Item 0',
+      ],
+      'item_1' => [
+        '#markup' => 'Item 1',
+      ],
+    ];
+
+    $html_expected = ''
+      . '<ol>'
+      . '<li>Item 0</li>'
+      . '<li>Item 1</li>'
+      . '</ol>'
+      . '';
+
+    $this->assertIdentical($html_expected, $html = drupal_render($element));
+  }
+
+  public function testSeparatorList() {
+
+    $element = [
+      /* @see theme_themekit_separator_list() */
+      '#theme' => 'themekit_separator_list',
+      '#separator' => ' <span class="separator">|</span> ',
+      'item_0' => [
+        '#markup' => 'Item 0',
+      ],
+      'item_1' => [
+        '#markup' => 'Item 1',
+      ],
+    ];
+
+    $html_expected = 'Item 0 <span class="separator">|</span> Item 1';
+
+    $this->assertIdentical($html_expected, $html = drupal_render($element));
+  }
+
   public function testThemekitProcessReparent() {
 
     $form_orig = [
