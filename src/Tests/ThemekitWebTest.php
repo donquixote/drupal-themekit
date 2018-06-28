@@ -53,10 +53,12 @@ class ThemekitWebTest extends \DrupalWebTestCase {
 
     $element = [
       // Outer wrapper <ol>.
+      /* @see theme_themekit_container() */
       '#type' => 'themekit_container',
       '#tag_name' => 'ul',
       '#attributes' => ['class' => ['menu']],
       // Wrap each item in <li>.
+      /* @see theme_themekit_item_containers() */
       '#theme' => 'themekit_item_containers',
       '#item_tag_name' => 'li',
       '#zebra' => TRUE,
