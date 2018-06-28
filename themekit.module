@@ -32,6 +32,11 @@ function themekit_theme() {
       'render element' => 'element',
       'file' => 'themekit.theme.inc',
     ],
+    /* @see theme_themekit_table() */
+    'themekit_table' => [
+      'render element' => 'element',
+      'file' => 'themekit.theme.inc',
+    ],
   ];
 }
 

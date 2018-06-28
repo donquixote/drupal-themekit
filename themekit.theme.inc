@@ -210,3 +210,125 @@ function theme_themekit_separator_list(array $variables) {
     : '';
   return implode($separator, $pieces);
 }
+
+/**
+ * @param array $variables
+ *
+ * @return string
+ */
+function theme_themekit_table(array $variables) {
+  $table = $variables['element'];
+
+  $col_keys = _themekit_table_collect_col_keys($table);
+
+  $tsections_html = [
+    'thead' => '',
+    'tfoot' => '',
+    'tbody' => '',
+  ];
+  $tbody_html = '';
+
+  foreach (element_children($table) as $row_or_section_key) {
+
+    if (isset($table[$row_or_section_key]['#themekit_table_type'])) {
+      $section_tag_name = $table[$row_or_section_key]['#themekit_table_type'];
+      if (isset($tsections_html[$section_tag_name])) {
+        $tsection =& $table[$row_or_section_key];
+        $section_html = '';
+        foreach (element_children($tsection) as $row_key) {
+          $trow =& $tsection[$row_key];
+          $section_html .= _themekit_table_render_row($trow, $col_keys);
+        }
+
+        $tsections_html[$section_tag_name] .= _themekit_render_tag($section_tag_name, $tsection, $section_html);
+        continue;
+      }
+    }
+
+    $tbody_html .= _themekit_table_render_row($table[$row_or_section_key], $col_keys);
+  }
+
+  if ('' !== $tbody_html) {
+    $tsections_html['tbody'] .= _themekit_render_tag('tbody', [], $tbody_html);
+  }
+
+  return _themekit_render_tag('table', $table, implode('', $tsections_html));
+}
+
+/**
+ * @param array $table
+ *
+ * @return array
+ */
+function _themekit_table_collect_col_keys(array $table) {
+
+  $tsection_types = [
+    'thead' => 'thead',
+    'tfoot' => 'tfoot',
+    'tbody' => 'tbody',
+  ];
+
+  $col_keys = [];
+  foreach (element_children($table) as $row_or_section_key) {
+    $row_or_section =& $table[$row_or_section_key];
+
+    if (isset($row_or_section['#themekit_table_type'])) {
+      if (isset($tsection_types[$row_or_section['#themekit_table_type']])) {
+        foreach (element_children($row_or_section) as $row_key) {
+          $cell_keys = element_children($row_or_section[$row_key]);
+          $col_keys += array_combine($cell_keys, $cell_keys);
+        }
+        continue;
+      }
+    }
+
+    $cell_keys = element_children($row_or_section);
+    $col_keys += array_combine($cell_keys, $cell_keys);
+  }
+
+  return $col_keys;
+}
+
+/**
+ * @param array $trow
+ *   Render element representing a table row.
+ * @param string[] $col_keys
+ *
+ * @return string
+ */
+function _themekit_table_render_row(array $trow, array $col_keys) {
+
+  $row_html = '';
+  foreach ($col_keys as $col_key) {
+    if (!isset($trow[$col_key])) {
+      $row_html .= '<td></td>';
+      continue;
+    }
+    $tcell =& $trow[$col_key];
+    $cell_html = drupal_render($tcell);
+
+    $cell_tag_name = 'td';
+    if (isset($tcell['#themekit_table_type']) && 'th' === $tcell['#themekit_table_type']) {
+      $cell_tag_name = 'th';
+    }
+
+    $row_html .= _themekit_render_tag($cell_tag_name, $tcell, $cell_html);
+  }
+
+  return _themekit_render_tag('tr', $trow, $row_html);
+}
+
+/**
+ * @param string $tag_name
+ * @param array $element
+ * @param string $inner_html
+ *
+ * @return string
+ */
+function _themekit_render_tag($tag_name, array $element, $inner_html) {
+  $attributes = '';
+  if (!empty($element['#attributes'])) {
+    $attributes = drupal_attributes($element['#attributes']);
+  }
+  return '<' . $tag_name . $attributes . '>' . $inner_html . '</' . $tag_name . '>';
+}
