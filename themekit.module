@@ -2,7 +2,9 @@
 
 /* @see _themekit_pop_parent() */
 define('THEMEKIT_POP_PARENT', '_themekit_pop_parent');
+/* @deprecated */
 define('THEMEKIT_PREPROCESS', '#themekit_theme_preprocess');
+/* @deprecated */
 define('THEMEKIT_PROCESS', '#themekit_theme_process');
 
 /**
