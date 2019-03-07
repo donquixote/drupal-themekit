@@ -222,6 +222,81 @@ class ThemekitWebTest extends \DrupalWebTestCase {
       . '';
 
     $this->assertDrupalRender($html_expected, $element);
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
+      '#tag_name' => 'ul',
+      '#child_attributes' => ['class' => ['item']],
+      '#child_attributes_key' => '#item_attributes',
+      'item_0' => [
+        '#attributes' => ['class' => ['item-0']],
+        '#markup' => 'Item 0',
+      ],
+      'item_1' => [
+        '#item_attributes' => ['class' => ['item-1']],
+        '#markup' => 'Item 1',
+      ],
+    ];
+
+    $html_expected = ''
+      . '<ul>'
+      . '<li class="item">Item 0</li>'
+      . '<li class="item item-1">Item 1</li>'
+      . '</ul>'
+      . '';
+
+    $this->assertDrupalRender($html_expected, $element);
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
+      '#tag_name' => 'ul',
+      '#child_attributes' => ['class' => ['item']],
+      '#child_attributes_key' => 'invalid_key',
+      'item_0' => [
+        '#attributes' => ['class' => ['item-0']],
+        '#markup' => 'Item 0',
+      ],
+      'item_1' => [
+        '#item_attributes' => ['class' => ['item-1']],
+        '#markup' => 'Item 1',
+      ],
+    ];
+
+    $html_expected = ''
+      . '<ul>'
+      . '<li class="item">Item 0</li>'
+      . '<li class="item">Item 1</li>'
+      . '</ul>'
+      . '';
+
+    $this->assertDrupalRender($html_expected, $element);
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
+      '#tag_name' => 'ul',
+      '#child_attributes' => ['class' => ['item']],
+      '#child_attributes_key' => FALSE,
+      'item_0' => [
+        '#attributes' => ['class' => ['item-0']],
+        '#markup' => 'Item 0',
+      ],
+      'item_1' => [
+        '#item_attributes' => ['class' => ['item-1']],
+        '#markup' => 'Item 1',
+      ],
+    ];
+
+    $html_expected = ''
+      . '<ul>'
+      . '<li class="item">Item 0</li>'
+      . '<li class="item">Item 1</li>'
+      . '</ul>'
+      . '';
+
+    $this->assertDrupalRender($html_expected, $element);
   }
 
   public function testSeparatorList() {

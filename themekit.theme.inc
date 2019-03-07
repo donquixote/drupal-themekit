@@ -156,10 +156,30 @@ function theme_themekit_item_containers(array $variables) {
  */
 function theme_themekit_item_list(array $variables) {
   $element = $variables['element'];
+
   $default_child_attributes = isset($element['#child_attributes'])
     ? $element['#child_attributes'] + []
     : [];
   $default_child_attributes_str = drupal_attributes($default_child_attributes);
+
+  if (!isset($element['#child_attributes_key'])) {
+    // Look into $element[$delta]['#attributes'] for each child element.
+    $child_attributes_key = '#attributes';
+  }
+  elseif (empty($element['#child_attributes_key'])) {
+    // Child attributes key disabled on purpose.
+    // Ignore item attributes defined in the child elements.
+    $child_attributes_key = NULL;
+  }
+  elseif ('#' !== $element['#child_attributes_key'][0]) {
+    // Invalid key.
+    // Ignore item attributes defined in the child elements.
+    $child_attributes_key = NULL;
+  }
+  else {
+    // Look into $element[$delta][$child_attributes_key] for each child element.
+    $child_attributes_key = $element['#child_attributes_key'];
+  }
 
   $html = '';
   foreach (element_children($element) as $key) {
@@ -167,8 +187,8 @@ function theme_themekit_item_list(array $variables) {
     if ('' === $child_html) {
       continue;
     }
-    if (isset($element[$key]['#attributes'])) {
-      $child_attributes = $element[$key]['#attributes'];
+    if (NULL !== $child_attributes_key && !empty($element[$key][$child_attributes_key])) {
+      $child_attributes = $element[$key][$child_attributes_key];
       if (isset($child_attributes['class'], $default_child_attributes['class'])) {
         $child_attributes['class'] = array_unique(
           array_merge(
