@@ -120,6 +120,54 @@ class ThemekitWebTest extends \DrupalWebTestCase {
       . '';
 
     $this->assertIdentical($html_expected, $html = drupal_render($element));
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
+      '#attributes' => ['class' => ['list']],
+      '#tag_name' => 'ol',
+      'item_0' => [
+        '#attributes' => ['class' => ['item-0']],
+        '#markup' => 'Item 0',
+      ],
+      'item_1' => [
+        '#markup' => 'Item 1',
+      ],
+    ];
+
+    $html_expected = ''
+      . '<ol class="list">'
+      . '<li class="item-0">Item 0</li>'
+      . '<li>Item 1</li>'
+      . '</ol>'
+      . '';
+
+    $this->assertIdentical($html_expected, $html = drupal_render($element));
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
+      '#tag_name' => 'ul',
+      '#child_attributes' => ['class' => ['item']],
+      'item_0' => [
+        '#attributes' => ['class' => ['item-0']],
+        '#markup' => 'Item 0',
+      ],
+      'item_1' => [
+        // see what happens for duplicate class.
+        '#attributes' => ['class' => ['item']],
+        '#markup' => 'Item 1',
+      ],
+    ];
+
+    $html_expected = ''
+      . '<ul>'
+      . '<li class="item-0 item">Item 0</li>'
+      . '<li class="item">Item 1</li>'
+      . '</ul>'
+      . '';
+
+    $this->assertIdentical($html_expected, $html = drupal_render($element));
   }
 
   public function testSeparatorList() {
