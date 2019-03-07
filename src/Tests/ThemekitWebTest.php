@@ -162,7 +162,7 @@ class ThemekitWebTest extends \DrupalWebTestCase {
 
     $html_expected = ''
       . '<ul>'
-      . '<li class="item-0 item">Item 0</li>'
+      . '<li class="item item-0">Item 0</li>'
       . '<li class="item">Item 1</li>'
       . '</ul>'
       . '';

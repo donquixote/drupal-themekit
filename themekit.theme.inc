@@ -170,7 +170,10 @@ function theme_themekit_item_list(array $variables) {
     if (isset($element[$key]['#attributes'])) {
       $child_attributes = $element[$key]['#attributes'];
       if (isset($child_attributes['class'], $default_child_attributes['class'])) {
-        $child_attributes['class'] = array_unique(array_merge($child_attributes['class'], $default_child_attributes['class']));
+        $child_attributes['class'] = array_unique(
+          array_merge(
+            $default_child_attributes['class'],
+            $child_attributes['class']));
       }
       $child_attributes += $default_child_attributes;
       $child_attributes_str = drupal_attributes($child_attributes);
