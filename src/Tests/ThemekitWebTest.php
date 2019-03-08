@@ -124,6 +124,60 @@ class ThemekitWebTest extends \DrupalWebTestCase {
     $element = [
       /* @see theme_themekit_item_list() */
       '#theme' => 'themekit_item_list',
+      '#tag_name' => 'ul',
+      // No children.
+    ];
+
+    // @todo This should return empty html instead.
+    $html_expected = ''
+      . '<ul>'
+      . '</ul>'
+      . '';
+
+    $this->assertDrupalRender($html_expected, $element);
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
+      '#tag_name' => 'ul',
+      // Children produce empty html.
+      0 => [
+        '#markup' => '',
+      ],
+      1 => [],
+    ];
+
+    // @todo This should return empty string instead.
+    $html_expected = ''
+      . '<ul>'
+      . '</ul>'
+      . '';
+
+    $this->assertDrupalRender($html_expected, $element);
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
+      '#tag_name' => 'ul',
+      // Some of the children produces empty html.
+      ['#markup' => 'Item 0'],
+      [],
+      ['#markup' => 'Item 2'],
+      ['#markup' => ''],
+    ];
+
+    $html_expected = ''
+      . '<ul>'
+      . '<li>Item 0</li>'
+      . '<li>Item 2</li>'
+      . '</ul>'
+      . '';
+
+    $this->assertDrupalRender($html_expected, $element);
+
+    $element = [
+      /* @see theme_themekit_item_list() */
+      '#theme' => 'themekit_item_list',
       '#attributes' => ['class' => ['list']],
       '#tag_name' => 'ol',
       'item_0' => [
