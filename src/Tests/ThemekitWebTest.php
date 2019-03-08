@@ -39,14 +39,14 @@ class ThemekitWebTest extends \DrupalWebTestCase {
       . '<div class="field-item field-item-even field-item-last">Z</div>'
       . '';
 
-    $this->assertIdentical($html_expected, theme('themekit_item_containers', ['element' => $element]));
+    $this->assertTheme($html_expected, 'themekit_item_containers', ['element' => $element]);
 
     $element_copy = $element;
-    $this->assertIdentical($html_expected, drupal_render($element_copy));
+    $this->assertDrupalRender($html_expected, $element_copy);
 
     $element['#item_tag_name'] = false;
     $html_expected = 'XYZ';
-    $this->assertIdentical($html_expected, theme('themekit_item_containers', ['element' => $element]));
+    $this->assertTheme($html_expected, 'themekit_item_containers', ['element' => $element]);
   }
 
   public function testThemekitItemContainersWithContainer() {
@@ -76,7 +76,7 @@ class ThemekitWebTest extends \DrupalWebTestCase {
       . '</ul>'
       . '';
 
-    $this->assertIdentical($html_expected, $html = drupal_render($element));
+    $this->assertDrupalRender($html_expected, $element);
   }
 
   public function testLinkWrapper() {
@@ -95,7 +95,7 @@ class ThemekitWebTest extends \DrupalWebTestCase {
 
     $html_expected = '<a href="/admin">Administration</a>';
 
-    $this->assertIdentical($html_expected, $html = drupal_render($element));
+    $this->assertDrupalRender($html_expected, $element);
   }
 
   public function testItemList() {
@@ -119,7 +119,7 @@ class ThemekitWebTest extends \DrupalWebTestCase {
       . '</ol>'
       . '';
 
-    $this->assertIdentical($html_expected, $html = drupal_render($element));
+    $this->assertDrupalRender($html_expected, $element);
 
     $element = [
       /* @see theme_themekit_item_list() */
@@ -142,7 +142,7 @@ class ThemekitWebTest extends \DrupalWebTestCase {
       . '</ol>'
       . '';
 
-    $this->assertIdentical($html_expected, $html = drupal_render($element));
+    $this->assertDrupalRender($html_expected, $element);
 
     $element = [
       /* @see theme_themekit_item_list() */
@@ -167,7 +167,7 @@ class ThemekitWebTest extends \DrupalWebTestCase {
       . '</ul>'
       . '';
 
-    $this->assertIdentical($html_expected, $html = drupal_render($element));
+    $this->assertDrupalRender($html_expected, $element);
   }
 
   public function testSeparatorList() {
@@ -186,7 +186,7 @@ class ThemekitWebTest extends \DrupalWebTestCase {
 
     $html_expected = 'Item 0 <span class="separator">|</span> Item 1';
 
-    $this->assertIdentical($html_expected, $html = drupal_render($element));
+    $this->assertDrupalRender($html_expected, $element);
   }
 
   public function testThemekitProcessReparent() {
@@ -245,6 +245,130 @@ class ThemekitWebTest extends \DrupalWebTestCase {
 
     // Return a fully built form that is ready for rendering.
     return form_builder($form_id, $form, $form_state);
+  }
+
+  /**
+   * Asserts that a render element produces expected output.
+   *
+   * @param string $expected
+   *   Expected html returned from theme().
+   * @param string $hook
+   *   Theme hook to pass to theme().
+   * @param array $variables
+   *   Variables to pass to theme().
+   *
+   * @return bool
+   *
+   * @see assertThemeOutput()
+   *   This core function is not as good as this one, I claim.
+   */
+  protected function assertTheme($expected, $hook, array $variables) {
+
+    $message = ''
+      . '<pre>theme(@hook, @variables)</pre>'
+      . '';
+
+    $replacements = [
+      '@expected' => var_export($expected, TRUE),
+      '@hook' => var_export($hook, TRUE),
+      '@variables' => var_export($variables, TRUE),
+    ];
+
+    try {
+      $actual = theme($hook, $variables);
+
+      $replacements['@actual'] = var_export($actual, TRUE);
+
+      if ($actual !== $expected) {
+        $success = FALSE;
+        $message .= ''
+          . '<hr/>'
+          . 'Output: <pre>@actual</pre>'
+          . '<hr/>'
+          . 'Expected: <pre>@expected</pre>'
+          . '';
+      }
+      else {
+        $success = TRUE;
+        $message .= ''
+          . '<hr/>'
+          . 'Output: <pre>@expected</pre>'
+          . '';
+      }
+    }
+    catch (\Exception $e) {
+      $success = FALSE;
+      $replacements['@exception'] = _drupal_render_exception_safe($e);
+      $message .= ''
+        . '<hr/>'
+        . 'Exception: @exception'
+        . '<hr/>'
+        . 'Expected: <pre>@expected</pre>'
+        . '';
+    }
+
+    return $this->assert(
+      $success,
+      format_string($message, $replacements));
+  }
+
+  /**
+   * Asserts that a render element produces expected output.
+   *
+   * @param string $expected
+   *   Expected html to be returned from drupal_render().
+   * @param array $element
+   *   Render element to pass to drupal_render().
+   *
+   * @return bool
+   */
+  protected function assertDrupalRender($expected, array $element) {
+
+    $message = ''
+      . '<pre>drupal_render(@element)</pre>'
+      . '';
+
+    $replacements = [
+      '@expected' => var_export($expected, TRUE),
+      '@element' => var_export($element, TRUE),
+    ];
+
+    try {
+      $actual = drupal_render($element);
+
+      $replacements['@actual'] = var_export($actual, TRUE);
+
+      if ($actual !== $expected) {
+        $success = FALSE;
+        $message .= ''
+          . '<hr/>'
+          . 'Output: <pre>@actual</pre>'
+          . '<hr/>'
+          . 'Expected: <pre>@expected</pre>'
+          . '';
+      }
+      else {
+        $success = TRUE;
+        $message .= ''
+          . '<hr/>'
+          . 'Output as expected: <pre>@expected</pre>'
+          . '';
+      }
+    }
+    catch (\Exception $e) {
+      $success = FALSE;
+      $replacements['@exception'] = _drupal_render_exception_safe($e);
+      $message .= ''
+        . '<hr/>'
+        . 'Exception: @exception'
+        . '<hr/>'
+        . 'Expected: <pre>@expected</pre>'
+        . '';
+    }
+
+    return $this->assert(
+      $success,
+      format_string($message, $replacements));
   }
 
 }
